@@ -1,0 +1,203 @@
+{
+  "name": "User Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -272,
+        -16
+      ],
+      "id": "e350ad5f-2f10-4e75-a5e0-326245e7dc20",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.userApiUrl }}",
+        "options": {}
+      },
+      "id": "38c0286c-6cad-49c0-9d71-8bf1285af283",
+      "name": "Fetch User Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -48,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "userId",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "id-2",
+              "name": "userName",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "id-6",
+              "name": "address",
+              "value": "={{ $json.address.street }}, {{ $json.address.suite }}, {{ $json.address.city }} City",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2b03d90d-6171-4edc-9575-7c1735603aeb",
+      "name": "Clean User Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        176,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -16
+      ],
+      "id": "7da4319b-b1fe-48c3-ac3e-41aa43bf1bbb",
+      "name": "Limit Users"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "users",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        624,
+        -16
+      ],
+      "id": "4cad3934-7ff3-4f9c-852d-42f37b4df110",
+      "name": "Aggregate users"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        832,
+        -16
+      ],
+      "id": "9d849073-c8f4-408a-8a35-09d7838e5624",
+      "name": "Send process data"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "userApiUrl": "https://jsonplaceholder.typicode.com/users",
+          "productApiUrl": "https://api.escuelajs.co/api/v1/products",
+          "priceThreshold": 10
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Fetch User Data": {
+      "main": [
+        [
+          {
+            "node": "Clean User Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean User Data": {
+      "main": [
+        [
+          {
+            "node": "Limit Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit Users": {
+      "main": [
+        [
+          {
+            "node": "Aggregate users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Fetch User Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate users": {
+      "main": [
+        [
+          {
+            "node": "Send process data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "872e300c-5843-457b-9846-12861e6570f3",
+  "meta": {
+    "instanceId": "400eb0047eabc1e61813fea88eaf20841c86c6c6abe77bcf3a9e339855b94c89"
+  },
+  "id": "dBiFC2dgmNieLTOK",
+  "tags": [
+    {
+      "updatedAt": "2025-11-17T03:51:31.780Z",
+      "createdAt": "2025-11-17T03:51:31.780Z",
+      "id": "Nmiqy4s8MNoYwvba",
+      "name": "Workflow #1"
+    },
+    {
+      "updatedAt": "2025-11-17T03:39:36.645Z",
+      "createdAt": "2025-11-17T03:39:36.645Z",
+      "id": "PsAJsTx2oMwmidZM",
+      "name": "sub-workflow"
+    }
+  ]
+}

@@ -1,0 +1,375 @@
+{
+  "name": "Product Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -576,
+        64
+      ],
+      "id": "f7fe8f40-7601-43df-8e12-07a011b72ecc",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "method": "=GET",
+        "url": "={{ $json.productApiUrl }}",
+        "options": {}
+      },
+      "id": "1242e751-9d71-4e50-aadd-a6ade9398628",
+      "name": "Fetch Product Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -352,
+        64
+      ],
+      "retryOnFail": false,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "products",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        992,
+        64
+      ],
+      "id": "337001fc-58ed-45d3-ab53-25c53cbd6e54",
+      "name": "Aggregate products"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        96,
+        64
+      ],
+      "id": "fede72cb-daca-4fd2-8444-3c689aac8e5b",
+      "name": "Limit Products"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "00db8bb0-e5af-46a0-a983-97f03bc47512",
+              "leftValue": "={{ $json.price }}",
+              "rightValue": "={{ $('When Executed by Another Workflow').item.json.priceThreshold }}",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -128,
+        64
+      ],
+      "id": "7f55c587-b285-4326-9eb3-3124a2c0719c",
+      "name": "Remove low price"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.price }}",
+              "rightValue": 45,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2359e381-4c20-43b4-b1a8-71643d265db3",
+      "name": "Check Product Price",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-2",
+              "name": "productName",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "category",
+              "value": "={{ $json.category.name }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "price",
+              "value": "={{ $json.price + 10 }}",
+              "type": "number"
+            },
+            {
+              "id": "353428c4-1011-48ec-b214-2a8d81d7a78a",
+              "name": "imageUrl",
+              "value": "={{ $json.images[1] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f99ea0f7-48cf-4cc1-b09e-2683d16872b6",
+      "name": "Clean Low-Price Products",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        544,
+        160
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        768,
+        64
+      ],
+      "id": "5428188e-3908-4e52-b863-37417864cbb9",
+      "name": "Merge Products"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-2",
+              "name": "productName",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "category",
+              "value": "={{ $json.category.name }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "price",
+              "value": "={{ $json.price }}",
+              "type": "number"
+            },
+            {
+              "id": "74207284-a256-42f0-bb13-cd3dd38346d8",
+              "name": "imageUrl",
+              "value": "={{ $json.images[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a2843980-3432-4991-a1b4-754f994dd138",
+      "name": "Clean High-Price Products",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        544,
+        -32
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        64
+      ],
+      "id": "1df04251-4ad3-4095-944c-fb49b3f15e8b",
+      "name": "Send process data"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "userApiUrl": "https://jsonplaceholder.typicode.com/users",
+          "productApiUrl": "https://api.escuelajs.co/api/v1/products",
+          "priceThreshold": 10
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Fetch Product Data": {
+      "main": [
+        [
+          {
+            "node": "Remove low price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit Products": {
+      "main": [
+        [
+          {
+            "node": "Check Product Price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove low price": {
+      "main": [
+        [
+          {
+            "node": "Limit Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Product Price": {
+      "main": [
+        [
+          {
+            "node": "Clean High-Price Products",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Clean Low-Price Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Low-Price Products": {
+      "main": [
+        [
+          {
+            "node": "Merge Products",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Products": {
+      "main": [
+        [
+          {
+            "node": "Aggregate products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean High-Price Products": {
+      "main": [
+        [
+          {
+            "node": "Merge Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Fetch Product Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate products": {
+      "main": [
+        [
+          {
+            "node": "Send process data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "aac74200-95f5-4590-9f9f-293ae0e47243",
+  "meta": {
+    "instanceId": "400eb0047eabc1e61813fea88eaf20841c86c6c6abe77bcf3a9e339855b94c89"
+  },
+  "id": "LpOZz6a31AYgeSUe",
+  "tags": [
+    {
+      "updatedAt": "2025-11-17T03:51:31.780Z",
+      "createdAt": "2025-11-17T03:51:31.780Z",
+      "id": "Nmiqy4s8MNoYwvba",
+      "name": "Workflow #1"
+    },
+    {
+      "updatedAt": "2025-11-17T03:39:36.645Z",
+      "createdAt": "2025-11-17T03:39:36.645Z",
+      "id": "PsAJsTx2oMwmidZM",
+      "name": "sub-workflow"
+    }
+  ]
+}

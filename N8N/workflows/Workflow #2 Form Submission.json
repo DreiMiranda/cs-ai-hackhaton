@@ -1,0 +1,882 @@
+{
+  "name": "Workflow 2: Form Submission",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Product Inquiry Form",
+        "formDescription": "Submit your product inquiry and upload relevant documents",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "first_name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "last_name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "contact",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "company"
+            },
+            {
+              "fieldLabel": "product",
+              "placeholder": "(eg. iPhone 17, MacBook Pro)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "inquiry_type",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Pricing"
+                  },
+                  {
+                    "option": "Technical Specs"
+                  },
+                  {
+                    "option": "Availability"
+                  },
+                  {
+                    "option": "Bulk Order"
+                  },
+                  {
+                    "option": "Support"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "priority",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Low"
+                  },
+                  {
+                    "option": "Medium"
+                  },
+                  {
+                    "option": "High"
+                  },
+                  {
+                    "option": "Urgent"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "message",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -1280,
+        312
+      ],
+      "id": "c997b79f-bc40-4a9d-a86c-79e43f16945c",
+      "name": "Product Inquiry Form",
+      "webhookId": "enhanced-product-inquiry"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1g4RSZkSZczx09WrmVoOWiORVh2exEn67jS2E_Qb8Lqc",
+          "mode": "list",
+          "cachedResultName": "Workflow #2 Example Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g4RSZkSZczx09WrmVoOWiORVh2exEn67jS2E_Qb8Lqc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 741614173,
+          "mode": "list",
+          "cachedResultName": "Inquiries",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g4RSZkSZczx09WrmVoOWiORVh2exEn67jS2E_Qb8Lqc/edit#gid=741614173"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "email",
+              "lookupValue": "={{ $json.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1056,
+        312
+      ],
+      "id": "352e35b6-3611-4bd7-b6ae-f65c136350dd",
+      "name": "Check Existing Customer",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KWSXb4HS2NCEbiaz",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "check-existing",
+              "leftValue": "={{ $('Check Existing Customer').item.json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -832,
+        312
+      ],
+      "id": "39c9778e-6244-4de5-b5d9-4bb610046dda",
+      "name": "Is New Customer?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "check-priority",
+              "leftValue": "={{ $('Product Inquiry Form').item.json.priority }}",
+              "rightValue": "High",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "singleValue": false
+              }
+            },
+            {
+              "id": "2bf3cd5b-2620-42b3-aaf1-f210bbaea918",
+              "leftValue": "={{ $('Product Inquiry Form').item.json.priority }}",
+              "rightValue": "Urgent",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -608,
+        216
+      ],
+      "id": "95319ef3-4910-45fb-bfa8-01eae472d1ed",
+      "name": "Is High Priority?"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1g4RSZkSZczx09WrmVoOWiORVh2exEn67jS2E_Qb8Lqc",
+          "mode": "list",
+          "cachedResultName": "Workflow #2 Example Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g4RSZkSZczx09WrmVoOWiORVh2exEn67jS2E_Qb8Lqc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 741614173,
+          "mode": "list",
+          "cachedResultName": "Inquiries",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g4RSZkSZczx09WrmVoOWiORVh2exEn67jS2E_Qb8Lqc/edit#gid=741614173"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "first_name": "={{ $('Product Inquiry Form').item.json.first_name }}",
+            "last_name": "={{ $('Product Inquiry Form').item.json.last_name }}",
+            "email": "={{ $('Product Inquiry Form').item.json.email }}",
+            "contact": "={{ $('Product Inquiry Form').item.json.contact }}",
+            "company": "={{ $('Product Inquiry Form').item.json.company }}",
+            "product": "={{ $('Product Inquiry Form').item.json.product }}",
+            "inquiry_type": "={{ $('Product Inquiry Form').item.json.inquiry_type }}",
+            "priority": "={{ $('Product Inquiry Form').item.json.priority }}",
+            "message": "={{ $('Product Inquiry Form').item.json.message }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact",
+              "displayName": "contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product",
+              "displayName": "product",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "inquiry_type",
+              "displayName": "inquiry_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -160,
+        312
+      ],
+      "id": "b77e6b1f-a527-47ff-b1ec-d29eeda55377",
+      "name": "Add New Customer Record",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KWSXb4HS2NCEbiaz",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate summary report\nconst form = $(\"Product Inquiry Form\").first().json // get input data from n8n (or replace with your data source)\n\n// Create comprehensive summary\nconst summary = {\n  timestamp: form.submittedAt || new Date().toISOString(),\n  customer: {\n    name: `${form.first_name || ''} ${form.last_name || ''}`.trim(),\n    email: form.email || 'N/A',\n    company: form.company || 'N/A',\n    contact: form.contact || 'N/A',\n  },\n  inquiry: {\n    product: form.product || 'N/A',\n    type: form.inquiry_type || 'N/A',\n    priority: form.priority || 'N/A',\n    message: form.message || 'No message provided',\n  },\n  processing: {\n    workflow_status: \"completed\",\n    sheets_updated: true,\n    drive_folder_created: true,\n  },\n};\n\n// Return the summary as output\nreturn summary;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        312
+      ],
+      "id": "c51cf7ba-30d9-420c-95aa-4b255d0298cf",
+      "name": "Generate Summary Report"
+    },
+    {
+      "parameters": {
+        "sendTo": "andreimiranda123123@gmail.com",
+        "subject": "=🚨 HIGH PRIORITY Inquiry - {{ $('Product Inquiry Form').first().json.priority }}",
+        "message": "=<h2>High Priority Inquiry Alert</h2><p><strong>Customer:</strong> {{ $('Product Inquiry Form').first().json.first_name }} {{ $('Product Inquiry Form').first().json.last_name }}</p><p><strong>Email:</strong> {{ $('Product Inquiry Form').first().json.email }}</p><p><strong>Product:</strong> {{ $('Product Inquiry Form').first().json.product }}</p><p><strong>Priority:</strong> {{ $('Product Inquiry Form').first().json.priority }}</p><p><strong>Message:</strong> {{ $('Product Inquiry Form').first().json.message }}</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -160,
+        96
+      ],
+      "id": "37ccf26c-6544-4d92-93ad-1fe3972a19fe",
+      "name": "Send a message",
+      "webhookId": "eacb6288-c57d-4662-89bd-db397ba68439",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "unZAiaPLIOH5o0Fs",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1g4RSZkSZczx09WrmVoOWiORVh2exEn67jS2E_Qb8Lqc",
+          "mode": "list",
+          "cachedResultName": "Workflow #2 Example Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g4RSZkSZczx09WrmVoOWiORVh2exEn67jS2E_Qb8Lqc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 741614173,
+          "mode": "list",
+          "cachedResultName": "Inquiries",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g4RSZkSZczx09WrmVoOWiORVh2exEn67jS2E_Qb8Lqc/edit#gid=741614173"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.email }}",
+            "product": "={{ $json.product }}",
+            "inquiry_type": "={{ $json.inquiry_type }}",
+            "priority": "={{ $json.priority }}",
+            "message": "={{ $json.message }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contact",
+              "displayName": "contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product",
+              "displayName": "product",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "inquiry_type",
+              "displayName": "inquiry_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -608,
+        528
+      ],
+      "id": "36a739a7-7a22-4d92-a35b-50577fda340d",
+      "name": "Update Existing Customer",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KWSXb4HS2NCEbiaz",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1g4RSZkSZczx09WrmVoOWiORVh2exEn67jS2E_Qb8Lqc",
+          "mode": "list",
+          "cachedResultName": "Workflow #2 Example Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g4RSZkSZczx09WrmVoOWiORVh2exEn67jS2E_Qb8Lqc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 744122860,
+          "mode": "list",
+          "cachedResultName": "HighUrgent Priority",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g4RSZkSZczx09WrmVoOWiORVh2exEn67jS2E_Qb8Lqc/edit#gid=744122860"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "first_name": "={{ $('Product Inquiry Form').item.json.first_name }}",
+            "last_name": "={{ $('Product Inquiry Form').item.json.last_name }}",
+            "email": "={{ $('Product Inquiry Form').item.json.email }}",
+            "contact": "={{ $('Product Inquiry Form').item.json.contact }}",
+            "product": "={{ $('Product Inquiry Form').item.json.product }}",
+            "company": "={{ $('Product Inquiry Form').item.json.company }}",
+            "inquiry_type": "={{ $('Product Inquiry Form').item.json.inquiry_type }}",
+            "priority": "={{ $('Product Inquiry Form').item.json.priority }}",
+            "message": "={{ $('Product Inquiry Form').item.json.message }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact",
+              "displayName": "contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product",
+              "displayName": "product",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "inquiry_type",
+              "displayName": "inquiry_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -384,
+        144
+      ],
+      "id": "fffafef6-dcd5-40ba-a1f4-ff65dca3bfac",
+      "name": "Log High Priority Inquiry",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KWSXb4HS2NCEbiaz",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 📋 Product Inquiry Workflow\n\n**Purpose:** Processes product inquiry form submissions with intelligent routing based on customer status and priority level.\n\n**Flow:**\n1. Form submission triggers workflow\n2. Check if customer exists in database\n3. Route to appropriate path (new vs existing)\n4. Handle high-priority inquiries with alerts\n5. Generate summary and send confirmations",
+        "height": 272,
+        "width": 448,
+        "color": 4
+      },
+      "id": "51d42490-6bd6-4f87-a99c-5c7f738af3ce",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1232,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Product Inquiry Form').first().json.email }}",
+        "subject": "Thank You for Your Inquiry",
+        "message": "=<h2>Thank you for contacting us!</h2><p>Dear {{ $('Product Inquiry Form').first().json.first_name }},</p><p>We have received your inquiry about <strong>{{ $('Product Inquiry Form').first().json.product }}</strong> and will get back to you shortly.</p><p>Best regards,<br>Support Team</p>",
+        "options": {}
+      },
+      "id": "8a070f95-e9c0-4860-bfb4-6e5eff0e6b09",
+      "name": "Send Customer Confirmation",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        288,
+        312
+      ],
+      "webhookId": "5da683af-6ee6-47ab-9b91-ff0f15a33a2b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "unZAiaPLIOH5o0Fs",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "4780356e-687a-4e08-97ef-48eb0a9395ba",
+      "name": "Workflow Complete",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        512,
+        312
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "38fbbb8e-f65d-463e-a06c-12d7127a7dc1",
+      "name": "Message Sent",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        64,
+        96
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        528
+      ],
+      "id": "a73c80f2-b705-4b8b-bd3d-7a562d3e5db7",
+      "name": "Done update"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Check Existing Customer": {
+      "main": [
+        [
+          {
+            "node": "Is New Customer?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is New Customer?": {
+      "main": [
+        [
+          {
+            "node": "Is High Priority?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Existing Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is High Priority?": {
+      "main": [
+        [
+          {
+            "node": "Log High Priority Inquiry",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add New Customer Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add New Customer Record": {
+      "main": [
+        [
+          {
+            "node": "Generate Summary Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log High Priority Inquiry": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Add New Customer Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product Inquiry Form": {
+      "main": [
+        [
+          {
+            "node": "Check Existing Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Existing Customer": {
+      "main": [
+        [
+          {
+            "node": "Done update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Summary Report": {
+      "main": [
+        [
+          {
+            "node": "Send Customer Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Customer Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Workflow Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Message Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "acc0db66-705e-4ace-8f49-7719909f2323",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "400eb0047eabc1e61813fea88eaf20841c86c6c6abe77bcf3a9e339855b94c89"
+  },
+  "id": "D5vtWVl70QzR5s5h",
+  "tags": []
+}
